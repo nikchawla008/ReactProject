@@ -11,10 +11,11 @@ class GetPosts extends Component{
 
     constructor(props) {
         super(props);
-        this.state = {error:null, posts : [], isLoaded:false, filtered_posts:[] };
+        this.state = {error:null, isLoaded:false, filtered_posts:[] };
         this.delPost = this.delPost.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.fetchAgain = this.fetchAgain.bind(this);
+        this.addPost = this.addPost.bind(this);
     }
 
 
@@ -24,12 +25,12 @@ class GetPosts extends Component{
         let postslist = JSON.parse(localStorage.getItem('Posts'));
         if ( postslist===null || postslist.length === 0){
             axios.get('https://jsonplaceholder.typicode.com/posts')
-                .then((response => {this.setState({posts:response.data, filtered_posts:response.data});
+                .then((response => {this.setState({filtered_posts:response.data});
                 localStorage.setItem('Posts', JSON.stringify(response.data));
                 }));
         }
         else {
-            this.setState({posts:postslist, filtered_posts:postslist});
+            this.setState({filtered_posts:postslist});
         }
     }
 
@@ -42,6 +43,13 @@ class GetPosts extends Component{
                     <div>
                     <input type='text' onChange={this.handleChange} className='searchbar' placeholder='Enter Search Text'/>
                     <button className='button right' onClick={()=>this.fetchAgain()}>Refetch Posts from REST API</button>
+                    <br /> <br/>
+                    </div>
+                    <div>
+                        <input type='text' className='searchbar padded'  placeholder='New Post Title' id='newposttitle'/>
+                        <input type='text' className='searchbar padded' placeholder='New Post Body' id='newpostbody'/>
+                        <input type='text' className='searchbar padded' placeholder='New Post UserId' id='newpostuser'/>
+                        <button className='button' onClick={()=> this.addPost()}>Submit</button>
                     </div>
                         <ul>
                         {posts.map(post => (<li key={post.id}>
@@ -108,7 +116,6 @@ class GetPosts extends Component{
         localStorage.setItem('Posts', JSON.stringify(posts));
 
         //update local posts state
-        //this.setState({posts:posts})
         this.setState({filtered_posts:posts})
     }
 
@@ -119,6 +126,35 @@ class GetPosts extends Component{
                 localStorage.setItem('Posts', JSON.stringify(response.data))}));
     }
 
+
+    addPost()
+    {
+        let new_title = document.getElementById('newposttitle').value;
+        let new_body = document.getElementById('newpostbody').value;
+        let new_user = document.getElementById('newpostuser').value;
+
+        let current_posts = JSON.parse(localStorage.getItem('Posts'));
+
+        let postlen = current_posts.length + 1;
+
+        current_posts = [...current_posts, {id:postlen, userId:new_user, title:new_title, body:new_body}];
+
+        localStorage.setItem('Posts', JSON.stringify(current_posts));
+        this.setState({filtered_posts:current_posts});
+
+
+        axios.post('https://jsonplaceholder.typicode.com/posts',
+            {id:postlen, userId:new_user, title:new_title, body:new_body})
+            .then((response)=>console.log(response))
+            .catch((error)=> {console.log(error)});
+
+        //resetting the input boxes
+        document.getElementById('newposttitle').value = '';
+        document.getElementById('newpostbody').value = '';
+        document.getElementById('newpostuser').value = '';
+        window.alert('Post added')
+
+    }
 
 
 }

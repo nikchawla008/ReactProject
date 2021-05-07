@@ -8,6 +8,8 @@
     font-size: 25px;
 }
 
+
+
 .rounded_border{
     height: 225px;
     margin: 60px auto 0;
@@ -41,6 +43,7 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     border-color: black;
+    margin-right: 40px;
 
 
 }
